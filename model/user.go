@@ -6,5 +6,5 @@ type User struct {
 	Phone    string `json:"Phone,omitempty" db:"phone"`
 	Password string `json:"Password,omitempty" db:"password"`
 	Role     string `json:"Role,omitempty" db:"role"`
-	Token    string `json:"-"`
+	Token    string `json:"Token,omitempty"`
 }

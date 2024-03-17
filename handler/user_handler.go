@@ -58,7 +58,18 @@ func (u *UserHandler) HandleSignIn(c echo.Context) error {
 		})
 	}
 
+	// gen token
+	token, err := security.GenToken(user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+	}
+
 	user.Password = ""
+	user.Token = token
 	return c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
 		Message:    "Đăng nhập thành công",
@@ -117,10 +128,26 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 			Data:       nil,
 		})
 	}
+
+	// gen token
+	token, err := security.GenToken(user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+	}
+
 	user.Password = ""
+	user.Token = token
 	return c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusConflict,
 		Message:    "Xử lý thành công",
 		Data:       user,
 	})
+}
+
+func (u *UserHandler) Profile(c echo.Context) error {
+	return nil
 }
