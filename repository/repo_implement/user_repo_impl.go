@@ -21,6 +21,19 @@ func NewUserRepo(sql *db.Sql) repository.UserRepo {
 
 }
 
+func (u *UserRepoImplement) CheckIfExist(context context.Context, signUpReq request.RequestSignUp) error {
+	statement := `
+		SELECT COUNT(*) FROM users where phone=$1;
+	`
+	var count int
+	u.sql.Db.QueryRowContext(context, statement, signUpReq.Phone).Scan(&count)
+
+	if count > 0 {
+		return banana.UserConflict
+	}
+	return nil
+}
+
 func (u *UserRepoImplement) SaveUser(context context.Context, user model.User) (model.User, error) {
 	statement := `
 		INSERT INTO users(user_id, phone, password, role, full_name) 

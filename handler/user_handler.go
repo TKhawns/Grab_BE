@@ -7,7 +7,6 @@ import (
 	"go_grab/security"
 	"net/http"
 
-	validator "github.com/go-playground/validator/v10"
 	uuid "github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
@@ -27,9 +26,7 @@ func (u *UserHandler) HandleSignIn(c echo.Context) error {
 		})
 	}
 
-	// validate input information
-	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
+	if err := c.Validate(req); err != nil {
 		return c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message:    err.Error(),
@@ -89,8 +86,8 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 	}
 
 	// validate input information
-	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
+
+	if err := c.Validate(req); err != nil {
 		return c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message:    err.Error(),
@@ -119,8 +116,16 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 		Token:    "",
 	}
 
-	user, err = u.UserRepo.SaveUser(c.Request().Context(), user)
+	err = u.UserRepo.CheckIfExist(c.Request().Context(), req)
+	if err != nil {
+		return c.JSON(http.StatusConflict, model.Response{
+			StatusCode: http.StatusConflict,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+	}
 
+	user, err = u.UserRepo.SaveUser(c.Request().Context(), user)
 	if err != nil {
 		return c.JSON(http.StatusConflict, model.Response{
 			StatusCode: http.StatusConflict,
