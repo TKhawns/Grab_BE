@@ -5,6 +5,8 @@ type User struct {
 	FullName string `json:"fullName,omitempty" db:"full_name"`
 	Phone    string `json:"Phone,omitempty" db:"phone"`
 	Password string `json:"Password,omitempty" db:"password"`
+	Email    string `json:"Email,omitempty" db:"email"`
+	Gender   string `json:"Gender,omitempty" db:"gender"`
 	Role     string `json:"Role,omitempty" db:"role"`
 	Token    string `json:"Token,omitempty"`
 }

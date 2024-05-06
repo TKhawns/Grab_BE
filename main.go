@@ -6,8 +6,10 @@ import (
 	"go_grab/helper"
 	"go_grab/repository/repo_implement"
 	"go_grab/router"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -17,12 +19,16 @@ func main() {
 		Port:     5432,
 		UserName: "postgres",
 		Password: "10012003",
-		DbName:   "grab_database",
+		DbName:   "ocr_nom_text",
 	}
 	sql.Connect()
 	defer sql.Close()
 
 	e := echo.New()
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
+	}))
 
 	structValidator := helper.NewStructValidator()
 	structValidator.RegisterValidate()
@@ -36,7 +42,8 @@ func main() {
 		Echo:        e,
 		UserHandler: UserHandler,
 	}
+
 	api.SetupRouter()
 
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":8080"))
 }

@@ -36,8 +36,8 @@ func (u *UserRepoImplement) CheckIfExist(context context.Context, signUpReq requ
 
 func (u *UserRepoImplement) SaveUser(context context.Context, user model.User) (model.User, error) {
 	statement := `
-		INSERT INTO users(user_id, phone, password, role, full_name) 
-		VALUES (:user_id, :phone, :password, :role, :full_name);
+		INSERT INTO users(user_id, phone, password, email, gender, full_name) 
+		VALUES (:user_id, :phone, :password, :email, :gender, :full_name);
 	`
 	// user.CreateAt = time.Now()
 	_, err := u.sql.Db.NamedExecContext(context, statement, user)
@@ -53,9 +53,28 @@ func (u *UserRepoImplement) SaveUser(context context.Context, user model.User) (
 	return user, nil
 }
 
+func (u *UserRepoImplement) SaveModel(context context.Context, model model.Model) (model.Model, error) {
+	statement := `
+		INSERT INTO models(model_id, name, description, status, model_date, content) 
+		VALUES (:model_id, :name, :description, :status, :model_date, :content);
+	`
+	// user.CreateAt = time.Now()
+	_, err := u.sql.Db.NamedExecContext(context, statement, model)
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			if err.Code.Name() == "unique_violation" {
+				return model, banana.UserConflict
+			}
+		}
+		return model, banana.SignUpFail
+	}
+
+	return model, nil
+}
+
 func (u *UserRepoImplement) CheckSignIn(context context.Context, signInReq request.RequestSignIn) (model.User, error) {
 	var user = model.User{}
-	err := u.sql.Db.GetContext(context, &user, "SELECT * FROM users WHERE phone=$1", signInReq.Phone)
+	err := u.sql.Db.GetContext(context, &user, "SELECT * FROM users WHERE email=$1", signInReq.Email)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

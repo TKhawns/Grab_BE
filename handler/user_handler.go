@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	"go_grab/model"
 	"go_grab/model/request"
 	"go_grab/repository"
 	"go_grab/security"
 	"net/http"
+	"os"
 
 	uuid "github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -96,7 +98,7 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 	}
 
 	hash := security.HashAndSalt([]byte(req.Password))
-	role := model.MEMBER.String()
+	// role := model.MEMBER.String()
 
 	userId, err := uuid.NewUUID()
 	if err != nil {
@@ -112,7 +114,8 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 		FullName: req.FullName,
 		Phone:    req.Phone,
 		Password: hash,
-		Role:     role,
+		Email:    req.Email,
+		Gender:   req.Gender,
 		Token:    "",
 	}
 
@@ -147,9 +150,59 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 	user.Password = ""
 	user.Token = token
 	return c.JSON(http.StatusOK, model.Response{
-		StatusCode: http.StatusConflict,
+		StatusCode: http.StatusOK,
 		Message:    "Xử lý thành công",
 		Data:       user,
+	})
+}
+
+func (u *UserHandler) HandleUpload(c echo.Context) error {
+	req := request.RequestUpload{}
+
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+	}
+
+	modelId, err := uuid.NewUUID()
+	if err != nil {
+		return c.JSON(http.StatusForbidden, model.Response{
+			StatusCode: http.StatusForbidden,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+	}
+
+	content, err := os.ReadFile("example.png")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	model_upload := model.Model{
+		Model_id:    modelId.String(),
+		Name:        req.Name,
+		Date:        req.Date,
+		Description: req.Description,
+		Content:     content,
+		Status:      req.Status,
+	}
+
+	model_upload, err = u.UserRepo.SaveModel(c.Request().Context(), model_upload)
+	if err != nil {
+		return c.JSON(http.StatusConflict, model.Response{
+			StatusCode: http.StatusConflict,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Xử lý thành công",
+		Data:       model_upload,
 	})
 }
 
