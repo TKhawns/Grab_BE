@@ -10,5 +10,6 @@ type UserRepo interface {
 	CheckSignIn(context context.Context, signInReq request.RequestSignIn) (model.User, error)
 	SaveUser(context context.Context, user model.User) (model.User, error)
 	SaveModel(context context.Context, user model.Model) (model.Model, error)
+	GetModelById(context context.Context, getModelReq request.RequestGetAllModel) ([]model.Model, error)
 	CheckIfExist(context context.Context, signUpReq request.RequestSignUp) error
 }

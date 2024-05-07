@@ -1,13 +1,11 @@
 package handler
 
 import (
-	"fmt"
 	"go_grab/model"
 	"go_grab/model/request"
 	"go_grab/repository"
 	"go_grab/security"
 	"net/http"
-	"os"
 
 	uuid "github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -176,18 +174,20 @@ func (u *UserHandler) HandleUpload(c echo.Context) error {
 		})
 	}
 
-	content, err := os.ReadFile("example.png")
-	if err != nil {
-		fmt.Print(err)
-	}
+	// content, err := os.ReadFile("example.png")
+	// if err != nil {
+	// 	fmt.Print(err)
+	// }
 
 	model_upload := model.Model{
 		Model_id:    modelId.String(),
 		Name:        req.Name,
 		Date:        req.Date,
 		Description: req.Description,
-		Content:     content,
+		Content:     req.Content,
 		Status:      req.Status,
+		User_id:     req.UserId,
+		Format:      req.Format,
 	}
 
 	model_upload, err = u.UserRepo.SaveModel(c.Request().Context(), model_upload)
@@ -203,6 +203,33 @@ func (u *UserHandler) HandleUpload(c echo.Context) error {
 		StatusCode: http.StatusOK,
 		Message:    "Xử lý thành công",
 		Data:       model_upload,
+	})
+}
+
+func (u *UserHandler) GetModelById(c echo.Context) error {
+	req := request.RequestGetAllModel{}
+
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+	}
+
+	result, err := u.UserRepo.GetModelById(c.Request().Context(), req)
+	if err != nil {
+		return c.JSON(http.StatusConflict, model.Response{
+			StatusCode: http.StatusConflict,
+			Message:    err.Error(),
+			Data:       nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message:    "Xử lý thành công",
+		Data:       result,
 	})
 }
 
