@@ -8,8 +8,9 @@ import (
 )
 
 type API struct {
-	Echo        *echo.Echo
-	UserHandler handler.UserHandler
+	Echo         *echo.Echo
+	UserHandler  handler.UserHandler
+	AdminHandler handler.AdminHandler
 }
 
 func (api *API) SetupRouter() {
@@ -18,5 +19,7 @@ func (api *API) SetupRouter() {
 	api.Echo.POST("/user/profile", api.UserHandler.Profile, middleware.JWTMiddleware())
 	api.Echo.POST("/user/upload-model", api.UserHandler.HandleUpload)
 	api.Echo.POST("/user/get-model", api.UserHandler.GetModelById)
+	api.Echo.GET("/admin/get-usermodel", api.AdminHandler.GetUserModel)
+	api.Echo.POST("/admin/update-status", api.AdminHandler.UpdateStatus)
 
 }

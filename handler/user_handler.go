@@ -185,7 +185,7 @@ func (u *UserHandler) HandleUpload(c echo.Context) error {
 		Date:        req.Date,
 		Description: req.Description,
 		Content:     req.Content,
-		Status:      req.Status,
+		Status:      "Chờ xử lý",
 		User_id:     req.UserId,
 		Format:      req.Format,
 	}

@@ -1,7 +1,7 @@
 package model
 
 type Model struct {
-	Model_id    string `json:"-" db:"model_id,omitempty"`
+	Model_id    string `json:"Model_id" db:"model_id,omitempty"`
 	User_id     string `json:"UserId,omitempty" db:"user_id"`
 	Name        string `json:"Name,omitempty" db:"name"`
 	Date        string `json:"Date,omitempty" db:"model_date"`
